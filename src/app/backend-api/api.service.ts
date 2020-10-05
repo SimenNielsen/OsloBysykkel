@@ -20,7 +20,7 @@ export class ApiService {
     }
   }
 
-  public getStations() : Promise<Station[]>{
-    return this.stationService.getStations(this.http, this.meta);
+  public async getStations() : Promise<Station[]>{
+    return await this.stationService.getStations(this.http, this.meta);
   }
 }

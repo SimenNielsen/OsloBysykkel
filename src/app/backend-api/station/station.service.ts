@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { rejects } from 'assert';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { APIMeta } from '../api-meta';
 import { StationInformationResponse } from '../station-information/station-information';
@@ -12,33 +13,32 @@ import { Station } from './station';
   providedIn: 'root'
 })
 export class StationService {
-  stations : BehaviorSubject<Station[]>;
+  // stations : Subject<Station[]> = new Subject();
 
-  stationInformationResponseSubject : BehaviorSubject<StationInformationResponse> = new BehaviorSubject(null);
-  stationStatusResponseSubject : BehaviorSubject<StationStatusResponse> = new BehaviorSubject(null);
+  // stationInformationResponseSubject : BehaviorSubject<StationInformationResponse> = new BehaviorSubject(null);
+  // stationStatusResponseSubject : BehaviorSubject<StationStatusResponse> = new BehaviorSubject(null);
 
-  subscriptions : Subscription;
+  // subscriptions : Subscription = new Subscription();
   constructor(
     private stationInformationService : StationInformationService,
     private stationStatusService: StationStatusService
   )
   {
-    this.subscriptions.add(
-      this.stationInformationResponseSubject.subscribe(
-        (value : StationInformationResponse) => this.updateStations
-      )
-    );
-    this.subscriptions.add(
-      this.stationInformationResponseSubject.subscribe(
-        (value : StationInformationResponse) => this.updateStations
-      )
-    );
+    // this.subscriptions.add(
+    //   this.stationInformationResponseSubject.subscribe(
+    //     (value : StationInformationResponse) => this.updateStations
+    //   )
+    // );
+    // this.subscriptions.add(
+    //   this.stationInformationResponseSubject.subscribe(
+    //     (value : StationInformationResponse) => this.updateStations
+    //   )
+    // );
   }
-  updateStations(){
-    if(!this.stationInformationResponseSubject.value || !this.stationStatusResponseSubject.value) return;
-    let stations : Station[];
-    let infoStations = this.stationInformationResponseSubject.value.data.stations;
-    let statusStations = this.stationStatusResponseSubject.value.data.stations;
+  linkStations(infoResponse : StationInformationResponse, stationResponse : StationStatusResponse) : Station[]{
+    let stations : Station[] = [];
+    let infoStations = infoResponse.data.stations;
+    let statusStations = stationResponse.data.stations;
     infoStations.forEach(infoStation => {
       for(let i = 0; i < statusStations.length; i++){
         if(statusStations[i].station_id === infoStation.station_id){
@@ -48,19 +48,24 @@ export class StationService {
         }
       }
     })
-    this.stations.next(stations);
+    return stations;
   }
   getStations(http: HttpClient, meta : APIMeta): Promise<Station[]>{
-    this.stationInformationService.getAll(http, meta).then(
-      (value: StationInformationResponse) => {
-        this.stationInformationResponseSubject.next(value);
-      }
-    )
-    this.stationStatusService.getAll(http, meta).then(
-      (value: StationStatusResponse) => {
-        this.stationStatusResponseSubject.next(value);
-      }
-    )
-    return this.stations.toPromise();
+    return new Promise((resolve, reject) => {
+      this.stationInformationService.getAll(http, meta).then(
+      (infoResponse: StationInformationResponse) => {
+        this.stationStatusService.getAll(http, meta).then(
+          (statusResponse: StationStatusResponse) => {
+            resolve(this.linkStations(infoResponse, statusResponse))
+          },
+          (err:any) => {
+            reject();
+          }
+        )
+      },
+      (err:any) => {
+        reject();
+      })
+    })
   }
 }

@@ -12,6 +12,7 @@ export class AppComponent implements OnInit {
   constructor(private api : ApiService){
   }
   ngOnInit(){
+    console.log("calling api");
     this.api.getStations().then(
       (stations : Station[]) => {
         console.log(stations)

@@ -1,3 +1,7 @@
+import { StationInformation } from '../station-information/station-information';
+import { StationPaymentOption } from '../station-information/station-payment-option/station-payment-option';
+import { StationStatus } from '../station-status/station-status';
+
 export class Station implements StationStatus, StationInformation {
     name: string;
     address: string;
