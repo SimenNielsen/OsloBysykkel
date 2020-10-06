@@ -9,6 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
+import { ChartModule } from 'angular-highcharts';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import {MatIconModule} from '@angular/material/icon';
     BrowserAnimationsModule,
     MatGridListModule,
     MatToolbarModule,
-    MatIconModule
+    MatIconModule,
+    ChartModule
   ],
   providers: [],
   bootstrap: [AppComponent]

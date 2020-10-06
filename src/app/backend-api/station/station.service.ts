@@ -8,6 +8,7 @@ import { StationInformationService } from '../station-information/station-inform
 import { StationStatusResponse } from '../station-status/station-status';
 import { StationStatusService } from '../station-status/station-status.service';
 import { Station } from './station';
+import * as ActivityJson from "../../../assets/activity_data_sept_2020.json";
 
 @Injectable({
   providedIn: 'root'
@@ -37,17 +38,19 @@ export class StationService {
   }
   linkStations(infoResponse : StationInformationResponse, stationResponse : StationStatusResponse) : Station[]{
     let stations : Station[] = [];
+    let activity : any = ActivityJson;
     let infoStations = infoResponse.data.stations;
     let statusStations = stationResponse.data.stations;
     infoStations.forEach(infoStation => {
       for(let i = 0; i < statusStations.length; i++){
         if(statusStations[i].station_id === infoStation.station_id){
-          stations.push(new Station(statusStations[i], infoStation))
+          stations.push(new Station(statusStations[i], infoStation, activity.default[infoStation.station_id]))
           stations.splice(i, 1);
           break;
         }
       }
     })
+    
     return stations;
   }
   getStations(http: HttpClient, meta : APIMeta): Promise<Station[]>{

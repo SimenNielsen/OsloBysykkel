@@ -22,8 +22,9 @@ export class Station implements StationStatus, StationInformation {
     post_code?: number;
     rental_methods: StationPaymentOption[];
     station_spots? : number[];
+    activity?: {in: number[], out: number[]}
 
-    constructor(status : StationStatus, information : StationInformation){
+    constructor(status : StationStatus, information : StationInformation, activity?){
         this.station_id = information.station_id;
         this.name = information.name;
         this.address = information.address;
@@ -42,6 +43,7 @@ export class Station implements StationStatus, StationInformation {
         this.last_reported = status.last_reported;
         this.is_returning = status.is_returning;
         this.station_spots = this.fillSpots(this.capacity, this.num_bikes_available, this.num_bikes_disabled);
+        this.activity = activity;
     }
     fillSpots(totalSpots, availableSpots, disabledSpots): number[]{
         let res = [];
