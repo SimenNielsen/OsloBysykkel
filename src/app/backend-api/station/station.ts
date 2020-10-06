@@ -14,12 +14,14 @@ export class Station implements StationStatus, StationInformation {
     num_docks_available: number;
     num_bikes_disabled?: number;
     last_reported: number;
+    last_reported_date: Date;
     is_returning: boolean;
     station_id: number;
     cross_street?: string;
     region_id?: string;
     post_code?: number;
     rental_methods: StationPaymentOption[];
+    station_spots? : number[];
 
     constructor(status : StationStatus, information : StationInformation){
         this.station_id = information.station_id;
@@ -39,5 +41,17 @@ export class Station implements StationStatus, StationInformation {
         this.num_bikes_disabled = status.num_bikes_disabled;
         this.last_reported = status.last_reported;
         this.is_returning = status.is_returning;
+        this.station_spots = this.fillSpots(this.capacity, this.num_bikes_available, this.num_bikes_disabled);
+    }
+    fillSpots(totalSpots, availableSpots, disabledSpots): number[]{
+        let res = [];
+        let i = 0;
+        while(i < totalSpots){
+            if(i < availableSpots) res[i]=0; //Available
+            else if(i < availableSpots+disabledSpots) res[i]=2; //Disabled
+            else res[i]=1; //Occupied
+            i++;
+        }
+        return res;
     }
 }
