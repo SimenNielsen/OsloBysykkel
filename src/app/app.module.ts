@@ -4,7 +4,8 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
-import { GoogleMapsModule } from '@angular/google-maps'
+import { GoogleMapsModule } from '@angular/google-maps';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { GoogleMapsModule } from '@angular/google-maps'
     AppRoutingModule,
     HttpClientModule,
     GoogleMapsModule,
+    BrowserAnimationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
