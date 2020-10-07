@@ -22,7 +22,7 @@ export class Station implements StationStatus, StationInformation {
     post_code?: number;
     rental_methods: StationPaymentOption[];
     station_spots? : number[];
-    activity?: {in: number[], out: number[]}
+    activity?: {in: number[], out: number[]};
 
     constructor(status : StationStatus, information : StationInformation, activity?){
         this.station_id = information.station_id;
@@ -56,4 +56,8 @@ export class Station implements StationStatus, StationInformation {
         }
         return res;
     }
+}
+export interface RelativeStation{
+    distance?: number;
+    station: Station;
 }

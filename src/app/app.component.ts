@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Chart } from 'angular-highcharts';
 import { BehaviorSubject } from 'rxjs';
 import { ApiService } from './backend-api/api.service';
-import { Station } from './backend-api/station/station';
+import { RelativeStation, Station } from './backend-api/station/station';
 import { ActivityChartOptions } from './activity-chart-options'
 import { SeriesOptionsType } from 'highcharts';
 
@@ -14,15 +14,17 @@ import { SeriesOptionsType } from 'highcharts';
 export class AppComponent implements OnInit {
   title = 'oslobysykkel';
   stations: Station[] = []
-  mapCenter: google.maps.LatLngLiteral;
+  mapCenter: google.maps.LatLngLiteral = {lat: 59.925488, lng: 10.746058};
   mapZoom = 13;
   mapOptions: google.maps.MapOptions = {
     minZoom: 10,
     disableDefaultUI:true
   };
   navigator : Navigator = window.navigator;
-  activeStation: BehaviorSubject<Station> = new BehaviorSubject(null);
+  activeStation: BehaviorSubject<RelativeStation> = new BehaviorSubject(null);
+  closestStation: BehaviorSubject<RelativeStation> = new BehaviorSubject(null);
   chart : Chart;
+  userPosition: BehaviorSubject<Position> = new BehaviorSubject(null); // coordinates of the user. only availabe if user agrees access through browser.
   constructor(private api : ApiService){
   }
   ngOnInit(){
@@ -32,49 +34,76 @@ export class AppComponent implements OnInit {
       }
     );
     this.activeStation.subscribe(
-      (station: Station) => {
+      (station: RelativeStation) => {
         this.postActiveStation(station);
+      }
+    )
+    this.userPosition.subscribe(
+      (pos: Position) => {
+        if(pos) this.updateClosestStation(pos);
       }
     )
   }
   updateStations(stations){
     this.stations = stations;
     //ask for browser permission to get location of user to find the closest station
-    this.navigator.geolocation.getCurrentPosition(this.updateClosestStation.bind(this));
+    this.navigator.geolocation.getCurrentPosition(this.updateUserPosition.bind(this));
   }
-  setActiveStation(station){
-    this.activeStation.next(station);
+  setActiveStation(station: Station){
+    let distance = this.getStationDistanceToUser(station, this.userPosition.value);
+    this.activeStation.next({station: station, distance: Math.floor(distance)});
+  }
+  updateUserPosition(position: Position){
+    this.userPosition.next(position);
   }
   updateClosestStation(position: Position){
     let closestStation = this.stations[0];
-    let closestDiff = getPositionDistance(closestStation.lat, position.coords.latitude) + getPositionDistance(closestStation.lon, position.coords.longitude);
+    let meterDiff = this.getStationDistanceToUser(closestStation, position);
+    let closestDiffKM = meterDiff;
     for(let i = 1; i < this.stations.length; i++){
-      let posDiff = getPositionDistance(this.stations[i].lat, position.coords.latitude) + getPositionDistance(this.stations[i].lon, position.coords.longitude);
-      if(posDiff < closestDiff && this.stations[i].num_bikes_available > 0){
+      meterDiff = this.getStationDistanceToUser(this.stations[i], position);
+      if(meterDiff < closestDiffKM && this.stations[i].num_bikes_available > 0){
         closestStation = this.stations[i];
-        closestDiff = posDiff;
+        closestDiffKM = meterDiff;
       }
     }
-    this.activeStation.next(closestStation);
+    this.closestStation.next({station:closestStation, distance: Math.floor(closestDiffKM) });
   }
-  postActiveStation(station: Station){
-    if(!station) return;
-    this.mapCenter = {lat: station.lat, lng: station.lon};
+  /*
+  Function to calculate distance between 2 points on earth
+  Source: https://www.movable-type.co.uk/scripts/latlong.html
+  */
+  getStationDistanceToUser(station: Station, pos: Position): number{
+    if(!(station && pos)) return null
+    const R = 6371e3; // metres
+    const φ1 = station.lat * Math.PI/180; // φ, λ in radians
+    const φ2 = pos.coords.latitude * Math.PI/180;
+    const Δφ = (pos.coords.latitude-station.lat) * Math.PI/180;
+    const Δλ = (pos.coords.longitude-station.lon) * Math.PI/180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    const d = R * c; // in metres
+    return d;
+  }
+  postActiveStation(activeStation: RelativeStation){
+    if(!activeStation) return;
+    this.mapCenter = {lat: activeStation.station.lat, lng: activeStation.station.lon};
     let options = ActivityChartOptions;
-    options["title"]["text"] = `${station.name} aktivitet September 2020`
+    options["title"]["text"] = `${activeStation.station.name} aktivitet September 2020`
     options["series"] = [
       {
         name: 'Utgående',
-        data: station.activity.out
+        data: activeStation.station.activity.out
       },
       {
         name: 'Innkommende',
-        data: station.activity.in
+        data: activeStation.station.activity.in
       }
     ]
     this.chart = new Chart(options);
   }
-}
-function getPositionDistance(pos1: number, pos2: number){
-  return Math.abs(pos1 - pos2);
 }

@@ -11,6 +11,14 @@
 <div class="container-fluid">
   <hr>
   <div class="row">
+    <div class="col-lg-12 bg-info" *ngIf="closestStation.value">
+      <span>Nærmeste stasjon: 
+        {{closestStation.value.distance > 1000 ? (closestStation.value.distance / 1000) + " km" : (closestStation.value.distance) + " m"}}
+        <a (click)="setActiveStation(closestStation.value.station)" href="#">
+          {{closestStation.value.station.name}}
+        </a>
+      </span>
+    </div>
     <div class="col-lg bg-secondary">
       <google-map
         height="500px"
@@ -33,31 +41,36 @@
     <div class="col-lg bg-info" *ngIf="activeStation.value">
       <div class="jumbotron bg-info h1">
         <mat-icon> directions_bike</mat-icon>
-        {{activeStation.value.name}}
+        {{activeStation.value.station.name}}
         <hr>
-        <span *ngFor="let spot of activeStation.value.station_spots" class="p-1">
+        <span *ngFor="let spot of activeStation.value.station.station_spots" class="p-1">
           <mat-icon *ngIf="spot===0" class="text-white">directions_bike</mat-icon>
           <mat-icon *ngIf="spot===1">directions_bike</mat-icon>
           <mat-icon *ngIf="spot===2" class="text-warning">directions_bike</mat-icon>
         </span>
-        <span>({{activeStation.value.num_bikes_available}}/{{activeStation.value.capacity}})</span>
+        <span>({{activeStation.value.station.num_bikes_available}}/{{activeStation.value.station.capacity}})</span>
       </div>
       <div>
         <table class="table table-striped">
           <tbody>
             <tr>
               <th scope="row">Adresse</th>
-              <td>{{activeStation.value.address}}</td>
+              <td>{{activeStation.value.station.address}}</td>
             </tr>
             <tr>
               <th scope="row">Sist oppdatert</th>
-              <td>{{activeStation.value.last_reported*1000 | date: "yyyy.MM.dd HH:mm" }}</td>
+              <td>{{activeStation.value.station.last_reported*1000 | date: "HH:mm dd.MM.yyyy" }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Avstand</th>
+              <td>{{activeStation.value.distance > 1000 ? (activeStation.value.distance / 1000) + " km" : (activeStation.value.distance) + " m"}}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
     <div class="col-lg-12">
+      <hr>
       <div [chart]="chart"></div>
     </div>
   </div>
