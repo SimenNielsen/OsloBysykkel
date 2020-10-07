@@ -40,7 +40,7 @@
     </div>
     <div class="col-lg bg-info" *ngIf="activeStation.value">
       <div class="jumbotron bg-info h1">
-        <mat-icon> directions_bike</mat-icon>
+        <mat-icon [ngClass]="{'text-white': activeStation.value.station.num_bikes_available > 0}"> directions_bike</mat-icon>
         {{activeStation.value.station.name}}
         <hr>
         <span *ngFor="let spot of activeStation.value.station.station_spots" class="p-1">
