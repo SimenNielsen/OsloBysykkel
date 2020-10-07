@@ -61,7 +61,7 @@
               <th scope="row">Sist oppdatert</th>
               <td>{{activeStation.value.station.last_reported*1000 | date: "HH:mm dd.MM.yyyy" }}</td>
             </tr>
-            <tr>
+            <tr *ngIf="userPosition.value">
               <th scope="row">Avstand</th>
               <td>{{activeStation.value.distance > 1000 ? (activeStation.value.distance / 1000) + " km" : (activeStation.value.distance) + " m"}}</td>
             </tr>

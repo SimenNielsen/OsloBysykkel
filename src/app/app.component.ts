@@ -40,7 +40,11 @@ export class AppComponent implements OnInit {
     )
     this.userPosition.subscribe(
       (pos: Position) => {
-        if(pos) this.updateClosestStation(pos);
+        if(!pos) return; 
+        this.updateClosestStation(pos);
+        if(this.activeStation.value){
+          this.activeStation.value.distance = this.getStationDistanceToUser(this.activeStation.value.station, pos);
+        }
       }
     )
   }
