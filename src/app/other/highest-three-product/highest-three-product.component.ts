@@ -10,7 +10,7 @@ export class HighestThreeProductComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    console.log(this.highestThreeProductFromArray([-10, 9, 5, -6, -10]));
+    console.log(this.highestThreeProductFromArray([-10, 3.2, 5, -6, -7]));
     // Output: 100
   }
 
@@ -31,7 +31,6 @@ export class HighestThreeProductComponent implements OnInit {
       along with the largest product of 2 numbers is greater. 
       Since we have negative numbers we also need to check the lowestProductOf2
       */
-     //console.log(currentNum, highestProductOf2, lowestProductOf2);
       highestProductOf3 = Math.max(highestProductOf3, numArray[i]*highestProductOf2, numArray[i]*lowestProductOf2);
       /*  
       replace highestProductOf2 if current number 
