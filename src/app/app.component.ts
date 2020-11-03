@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Chart } from 'angular-highcharts';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { ApiService } from './backend-api/api.service';
 import { RelativeStation, Station } from './backend-api/station/station';
-import { ActivityChartOptions } from './activity-chart-options'
-import { SeriesOptionsType } from 'highcharts';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +11,9 @@ import { SeriesOptionsType } from 'highcharts';
 export class AppComponent implements OnInit {
   title = 'oslobysykkel';
   stations: Station[] = []
+
+  activityOptions: BehaviorSubject<any> = new BehaviorSubject({});
+
   mapCenter: google.maps.LatLngLiteral = {lat: 59.925488, lng: 10.746058};
   mapZoom = 13;
   mapOptions: google.maps.MapOptions = {
@@ -23,7 +23,6 @@ export class AppComponent implements OnInit {
   navigator : Navigator = window.navigator;
   activeStation: BehaviorSubject<RelativeStation> = new BehaviorSubject(null);
   closestStation: BehaviorSubject<RelativeStation> = new BehaviorSubject(null);
-  chart : Chart;
   userPosition: BehaviorSubject<Position> = new BehaviorSubject(null); // coordinates of the user. only availabe if user agrees access through browser.
   constructor(private api : ApiService){
   }
@@ -96,18 +95,21 @@ export class AppComponent implements OnInit {
   postActiveStation(activeStation: RelativeStation){
     if(!activeStation) return;
     this.mapCenter = {lat: activeStation.station.lat, lng: activeStation.station.lon};
-    let options = ActivityChartOptions;
-    options["title"]["text"] = `${activeStation.station.name} aktivitet September 2020`
-    options["series"] = [
-      {
-        name: 'Utgående',
-        data: activeStation.station.activity.out
+    let options = {
+      'title': {
+        'text': `${activeStation.station.name} aktivitet September 2020`,
       },
-      {
-        name: 'Innkommende',
-        data: activeStation.station.activity.in
-      }
-    ]
-    this.chart = new Chart(options);
+      'series': [
+        {
+          name: 'Utgående',
+          data: activeStation.station.activity.out
+        },
+        {
+          name: 'Innkommende',
+          data: activeStation.station.activity.in
+        }
+      ]
+    };
+    this.activityOptions.next(options)
   }
 }

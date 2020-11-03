@@ -9,13 +9,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
-import { ChartModule } from 'angular-highcharts';
-import { HighestThreeProductComponent } from './other/highest-three-product/highest-three-product.component';
+import { StationActivityModule } from './OsloBySykkel-StationActivity/station-activity.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HighestThreeProductComponent
   ],
   imports: [
     BrowserModule,
@@ -26,7 +24,7 @@ import { HighestThreeProductComponent } from './other/highest-three-product/high
     MatGridListModule,
     MatToolbarModule,
     MatIconModule,
-    ChartModule
+    StationActivityModule
   ],
   providers: [],
   bootstrap: [AppComponent]
