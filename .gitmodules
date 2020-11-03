@@ -1,0 +1,3 @@
+[submodule "src/app/OsloBySykkel-StationActivity"]
+	path = src/app/OsloBySykkel-StationActivity
+	url = https://github.com/SimenNielsen/OsloBySykkel-StationActivity.git
